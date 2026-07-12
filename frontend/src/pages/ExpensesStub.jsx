@@ -310,32 +310,32 @@ export default function FuelExpenseTracker() {
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/85 transition-all duration-300">
+        <div class="p-5 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/85 transition-all duration-300">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Fuel Spent</span>
-            <span className="text-2xl font-extrabold text-indigo-400 mt-1.5 block tracking-tight">${totalFuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Fuel Spent</span>
+            <span class="text-2xl font-extrabold text-indigo-400 mt-1.5 block tracking-tight">₹{totalFuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <div className="p-3 bg-indigo-500/10 rounded-2xl text-indigo-400 border border-indigo-500/20">
+          <div class="p-3 bg-indigo-500/10 rounded-2xl text-indigo-400 border border-indigo-500/20">
             <Fuel className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/85 transition-all duration-300">
+        <div class="p-5 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/85 transition-all duration-300">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Other Costs</span>
-            <span className="text-2xl font-extrabold text-amber-400 mt-1.5 block tracking-tight">${totalExpenseCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Other Costs</span>
+            <span class="text-2xl font-extrabold text-amber-400 mt-1.5 block tracking-tight">₹{totalExpenseCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-400 border border-amber-500/20">
+          <div class="p-3 bg-amber-500/10 rounded-2xl text-amber-400 border border-amber-500/20">
             <FileText className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/85 transition-all duration-300">
+        <div class="p-5 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/85 transition-all duration-300">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Grand Total</span>
-            <span className="text-2xl font-extrabold text-emerald-405 mt-1.5 block tracking-tight text-emerald-400">${totalOperationalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Grand Total</span>
+            <span class="text-2xl font-extrabold text-emerald-405 mt-1.5 block tracking-tight text-emerald-400">₹{totalOperationalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20 animate-pulse">
+          <div class="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20 animate-pulse">
             <Activity className="w-5 h-5" />
           </div>
         </div>
@@ -379,11 +379,11 @@ export default function FuelExpenseTracker() {
             <select
               value={selectedVehicleFilter}
               onChange={(e) => setSelectedVehicleFilter(e.target.value)}
-              className="w-full md:w-56 px-4 py-2 text-xs rounded-xl border border-slate-800 bg-slate-950 text-slate-350 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full md:w-56 px-4 py-2 text-xs rounded-xl border border-slate-800 bg-[#0f172a] text-slate-350 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
             >
-              <option value="All">All Fleet Vehicles</option>
+              <option value="All" className="bg-[#0f172a] text-slate-200">All Fleet Vehicles</option>
               {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>
+                <option key={v.id} value={v.id} className="bg-[#0f172a] text-slate-200">
                   {v.regNumber} - {v.name}
                 </option>
               ))}
@@ -427,10 +427,10 @@ export default function FuelExpenseTracker() {
                     </td>
                     <td className="px-6 py-4 text-right font-medium text-slate-200 font-mono">{log.liters.toFixed(2)} L</td>
                     <td className="px-6 py-4 text-right font-bold text-indigo-400 font-mono">
-                      ${log.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      ₹{log.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 text-right text-xs text-slate-405 text-slate-400 font-mono">
-                      ${(log.cost / log.liters).toFixed(2)} / L
+                      ₹{(log.cost / log.liters).toFixed(2)} / L
                     </td>
                     <td className="px-6 py-4 text-slate-400 font-medium">{formatDate(log.date)}</td>
                   </tr>
@@ -467,7 +467,7 @@ export default function FuelExpenseTracker() {
                     </td>
                     <td className="px-6 py-4 font-semibold text-slate-200">{exp.type}</td>
                     <td className="px-6 py-4 text-right font-bold text-amber-400 font-mono">
-                      ${exp.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      ₹{exp.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 text-slate-400 font-medium">{formatDate(exp.date)}</td>
                   </tr>
@@ -514,14 +514,14 @@ export default function FuelExpenseTracker() {
                     <select
                       value={fuelVehicleId}
                       onChange={(e) => setFuelVehicleId(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-955 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-[#0f172a] text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all font-medium"
                       required
                     >
-                      <option value="">-- Choose a Vehicle --</option>
+                      <option value="" className="bg-[#0f172a] text-slate-200">-- Choose a Vehicle --</option>
                       {vehicles
                         .filter(v => v.status !== 'Retired')
                         .map((v) => (
-                          <option key={v.id} value={v.id}>
+                          <option key={v.id} value={v.id} className="bg-[#0f172a] text-slate-200">
                             {v.regNumber} - {v.name} ({v.status})
                           </option>
                         ))}
@@ -547,10 +547,10 @@ export default function FuelExpenseTracker() {
 
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                      Total Cost ($)
+                      Total Cost (₹)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-550 text-sm">$</span>
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-550 text-sm">₹</span>
                       <input
                         type="number"
                         step="0.01"
@@ -636,14 +636,14 @@ export default function FuelExpenseTracker() {
                     <select
                       value={expVehicleId}
                       onChange={(e) => setExpVehicleId(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-955 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-[#0f172a] text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all font-medium"
                       required
                     >
-                      <option value="">-- Choose a Vehicle --</option>
+                      <option value="" className="bg-[#0f172a] text-slate-200">-- Choose a Vehicle --</option>
                       {vehicles
                         .filter(v => v.status !== 'Retired')
                         .map((v) => (
-                          <option key={v.id} value={v.id}>
+                          <option key={v.id} value={v.id} className="bg-[#0f172a] text-slate-200">
                             {v.regNumber} - {v.name} ({v.status})
                           </option>
                         ))}
@@ -668,10 +668,10 @@ export default function FuelExpenseTracker() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                      Amount ($)
+                      Amount (₹)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-550 text-sm">$</span>
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-550 text-sm">₹</span>
                       <input
                         type="number"
                         step="0.01"

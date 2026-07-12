@@ -332,13 +332,13 @@ export default function VehicleRegistry() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-800 bg-[#030712]/40 text-slate-350 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-800 bg-[#0f172a] text-slate-355 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
             >
-              <option value="All">All Statuses</option>
-              <option value="Available">Available</option>
-              <option value="On Trip">On Trip</option>
-              <option value="In Shop">In Shop</option>
-              <option value="Retired">Retired</option>
+              <option value="All" className="bg-[#0f172a] text-slate-250">All Statuses</option>
+              <option value="Available" className="bg-[#0f172a] text-slate-250">Available</option>
+              <option value="On Trip" className="bg-[#0f172a] text-slate-250">On Trip</option>
+              <option value="In Shop" className="bg-[#0f172a] text-slate-250">In Shop</option>
+              <option value="Retired" className="bg-[#0f172a] text-slate-250">Retired</option>
             </select>
           </div>
 
@@ -347,13 +347,13 @@ export default function VehicleRegistry() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-800 bg-[#030712]/40 text-slate-350 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-800 bg-[#0f172a] text-slate-355 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
             >
-              <option value="All">All Types</option>
-              <option value="Van">Van</option>
-              <option value="Truck">Truck</option>
-              <option value="Car">Car</option>
-              <option value="SUV">SUV</option>
+              <option value="All" className="bg-[#0f172a] text-slate-250">All Types</option>
+              <option value="Van" className="bg-[#0f172a] text-slate-250">Van</option>
+              <option value="Truck" className="bg-[#0f172a] text-slate-250">Truck</option>
+              <option value="Car" className="bg-[#0f172a] text-slate-250">Car</option>
+              <option value="SUV" className="bg-[#0f172a] text-slate-250">SUV</option>
             </select>
           </div>
         </div>
@@ -416,7 +416,7 @@ export default function VehicleRegistry() {
                       </div>
                     </td>
                     <td className="px-6 py-4.5 text-right font-bold text-slate-100">
-                      ${vehicle.acquisitionCost.toLocaleString()}
+                      ₹{vehicle.acquisitionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-4.5 text-center">
                       <span className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${getStatusStyle(vehicle.status)}`}>
@@ -502,12 +502,12 @@ export default function VehicleRegistry() {
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-[#030712]/40 text-slate-350 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 transition-all font-medium text-sm"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-[#0f172a] text-slate-350 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 transition-all font-medium text-sm"
                     >
-                      <option value="Van">Van</option>
-                      <option value="Truck">Truck</option>
-                      <option value="Car">Car</option>
-                      <option value="SUV">SUV</option>
+                      <option value="Van" className="bg-[#0f172a] text-slate-200">Van</option>
+                      <option value="Truck" className="bg-[#0f172a] text-slate-200">Truck</option>
+                      <option value="Car" className="bg-[#0f172a] text-slate-200">Car</option>
+                      <option value="SUV" className="bg-[#0f172a] text-slate-200">SUV</option>
                     </select>
                   </div>
                 </div>
@@ -557,7 +557,7 @@ export default function VehicleRegistry() {
 
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Cost ($)
+                      Cost (₹)
                     </label>
                     <input
                       type="number"
@@ -578,12 +578,12 @@ export default function VehicleRegistry() {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-[#030712]/40 text-slate-350 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 transition-all font-medium text-sm"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-[#0f172a] text-slate-350 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 transition-all font-medium text-sm"
                     >
-                      <option value="Available">Available</option>
-                      <option value="On Trip">On Trip</option>
-                      <option value="In Shop">In Shop</option>
-                      <option value="Retired">Retired</option>
+                      <option value="Available" className="bg-[#0f172a] text-slate-200">Available</option>
+                      <option value="On Trip" className="bg-[#0f172a] text-slate-200">On Trip</option>
+                      <option value="In Shop" className="bg-[#0f172a] text-slate-200">In Shop</option>
+                      <option value="Retired" className="bg-[#0f172a] text-slate-200">Retired</option>
                     </select>
                   </div>
                 )}

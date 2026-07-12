@@ -260,7 +260,7 @@ export default function MaintenanceLog() {
         <div className="p-6 rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-md flex items-center justify-between hover:scale-[1.02] hover:border-slate-700/80 transition-all duration-300 shadow-md">
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Total Investment</span>
-            <span className="text-3xl font-extrabold text-emerald-400 mt-1.5 block tracking-tight">${totalMaintenanceCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="text-3xl font-extrabold text-emerald-400 mt-1.5 block tracking-tight">₹{totalMaintenanceCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20">
             <DollarSign className="w-6 h-6" />
@@ -289,11 +289,11 @@ export default function MaintenanceLog() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 text-xs rounded-xl border border-slate-800 bg-slate-950 text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+            className="px-4 py-2 text-xs rounded-xl border border-slate-800 bg-[#0f172a] text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
           >
-            <option value="All">All Statuses</option>
-            <option value="Open">Active (Open)</option>
-            <option value="Closed">Completed (Closed)</option>
+            <option value="All" className="bg-[#0f172a] text-slate-200">All Statuses</option>
+            <option value="Open" className="bg-[#0f172a] text-slate-200">Active (Open)</option>
+            <option value="Closed" className="bg-[#0f172a] text-slate-200">Completed (Closed)</option>
           </select>
         </div>
       </div>
@@ -335,7 +335,7 @@ export default function MaintenanceLog() {
                     {log.description}
                   </td>
                   <td className="px-6 py-4 text-right font-bold text-emerald-400 font-mono">
-                    ${log.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{log.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusBadgeClass(log.status)}`}>
@@ -406,14 +406,14 @@ export default function MaintenanceLog() {
                     <select
                       value={vehicleId}
                       onChange={(e) => setVehicleId(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-[#0f172a] text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all font-medium"
                       required
                     >
-                      <option value="">-- Choose a Vehicle --</option>
+                      <option value="" className="bg-[#0f172a] text-slate-200">-- Choose a Vehicle --</option>
                       {vehicles
                         .filter(v => v.status !== 'Retired')
                         .map((v) => (
-                          <option key={v.id} value={v.id}>
+                          <option key={v.id} value={v.id} className="bg-[#0f172a] text-slate-200">
                             {v.regNumber} - {v.name} ({v.status})
                           </option>
                         ))}
@@ -438,10 +438,10 @@ export default function MaintenanceLog() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                      Cost ($)
+                      Cost (₹)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-550 text-sm">$</span>
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-550 text-sm">₹</span>
                       <input
                         type="number"
                         step="0.01"
@@ -461,10 +461,10 @@ export default function MaintenanceLog() {
                     <select
                       value={logStatus}
                       onChange={(e) => setLogStatus(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-800 bg-[#0f172a] text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all font-medium"
                     >
-                      <option value="Open">Active (Sets vehicle to In Shop)</option>
-                      <option value="Closed">Immediate Complete (Saves closed)</option>
+                      <option value="Open" className="bg-[#0f172a] text-slate-200">Active (Sets vehicle to In Shop)</option>
+                      <option value="Closed" className="bg-[#0f172a] text-slate-200">Immediate Complete (Saves closed)</option>
                     </select>
                   </div>
                 </div>
