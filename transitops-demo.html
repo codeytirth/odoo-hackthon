@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TransitOps — Smart Transport Operations Platform</title>
+  <meta name="description" content="TransitOps: Real-time fleet management dashboard and analytics for modern logistics operations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #070b13;
+      --surface:    #0b0f19;
+      --surface2:   #111827;
+      --border:     rgba(148,163,184,0.10);
+      --border-hi:  rgba(99,102,241,0.30);
+      --text:       #e2e8f0;
+      --muted:      #64748b;
+      --subtle:     #94a3b8;
+      --indigo:     #6366f1;
+      --indigo-lt:  #818cf8;
+      --emerald:    #10b981;
+      --amber:      #f59e0b;
+      --red:        #f43f5e;
+      --blue:       #38bdf8;
+      --teal:       #2dd4bf;
+      --violet:     #8b5cf6;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+      transition: transform .3s;
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(99,102,241,.12);
+      border: 1px solid rgba(99,102,241,.25);
+      display: grid; place-items: center;
+    }
+    .brand-title { font-size: 17px; font-weight: 800; color: white; }
+    .brand-sub   { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+
+    nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 12px;
+      font-size: 13px; font-weight: 500; color: var(--subtle);
+      cursor: pointer; text-decoration: none;
+      transition: all .18s;
+      border: 1px solid transparent;
+    }
+    .nav-item:hover { background: rgba(148,163,184,.06); color: var(--text); }
+    .nav-item.active {
+      background: var(--indigo); color: white;
+      box-shadow: 0 4px 16px rgba(99,102,241,.25);
+    }
+    .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .sidebar-user {
+      padding: 12px; border-top: 1px solid var(--border);
+    }
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 12px;
+      background: rgba(0,0,0,.25); border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(148,163,184,.12); border: 1px solid var(--border);
+      display: grid; place-items: center;
+    }
+    .user-email { font-size: 11px; font-weight: 600; color: var(--text); }
+    .role-badge {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      padding: 2px 8px; border-radius: 99px; margin-top: 2px;
+      background: rgba(99,102,241,.12); color: var(--indigo-lt);
+      border: 1px solid rgba(99,102,241,.25); text-transform: uppercase; letter-spacing: .08em;
+    }
+    .logout-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; border-radius: 12px;
+      font-size: 13px; font-weight: 500; color: #f87171;
+      background: none; border: none; cursor: pointer;
+      transition: background .18s; font-family: inherit;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,.06); }
+
+    /* ── MAIN ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      height: 60px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(11,15,25,.6); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .topbar-email { font-size: 12px; color: var(--muted); }
+
+    .content { flex: 1; padding: 28px 32px; max-width: 1200px; width: 100%; }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── SECTION HEADER ── */
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 800; color: white; display: flex; align-items: center; gap: 10px; }
+    .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+      padding: 14px 16px; border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,.4);
+      margin-bottom: 24px;
+    }
+    .filter-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+    .filter-select, .filter-input {
+      padding: 8px 12px; border-radius: 10px;
+      background: rgba(30,41,59,.6); border: 1px solid rgba(100,116,139,.3);
+      color: var(--text); font-size: 13px; font-family: inherit;
+      outline: none; transition: border .18s;
+      cursor: pointer;
+    }
+    .filter-select:focus, .filter-input:focus { border-color: var(--indigo); }
+    .filter-input::placeholder { color: var(--muted); }
+    .clear-btn {
+      padding: 8px 14px; border-radius: 10px;
+      background: rgba(30,41,59,.4); border: 1px solid rgba(100,116,139,.25);
+      color: var(--muted); font-size: 12px; cursor: pointer;
+      transition: color .18s; font-family: inherit;
+    }
+    .clear-btn:hover { color: var(--text); }
+
+    /* ── UTILIZATION HERO ── */
+    .util-hero {
+      background: linear-gradient(135deg, rgba(99,102,241,.1) 0%, rgba(11,15,25,.5) 100%);
+      border: 1px solid rgba(99,102,241,.2);
+      border-radius: 20px; padding: 24px; margin-bottom: 24px;
+      position: relative; overflow: hidden;
+    }
+    .util-hero::after {
+      content: ''; position: absolute;
+      top: -60px; right: -60px; width: 200px; height: 200px;
+      border-radius: 50%; background: rgba(99,102,241,.08); pointer-events: none;
+      filter: blur(40px);
+    }
+    .util-inner { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+    .util-pct   { font-size: 56px; font-weight: 900; color: white; line-height: 1; }
+    .util-pct span { font-size: 28px; color: var(--indigo-lt); }
+    .util-label { font-size: 10px; font-weight: 700; color: var(--indigo-lt); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 4px; }
+    .util-sub   { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .util-bar-wrap { flex: 1; min-width: 200px; }
+    .util-bar-track {
+      width: 100%; height: 12px; border-radius: 99px;
+      background: rgba(30,41,59,.8); overflow: hidden; margin-top: 8px;
+    }
+    .util-bar-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--indigo), var(--violet));
+      transition: width .8s cubic-bezier(.4,0,.2,1);
+    }
+    .util-scale { display: flex; justify-content: space-between; margin-top: 6px; }
+    .util-scale span { font-size: 10px; color: var(--muted); }
+
+    /* ── KPI GRID ── */
+    .section-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .12em;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .kpi-card {
+      padding: 18px 20px; border-radius: 18px; border: 1px solid var(--border);
+      background: rgba(15,23,42,.35);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+    .kpi-card-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+    .kpi-card-value { font-size: 28px; font-weight: 800; }
+    .kpi-card-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
+    .kpi-indigo  { color: var(--indigo-lt); border-color: rgba(99,102,241,.2);  background: rgba(99,102,241,.04); }
+    .kpi-emerald { color: var(--emerald);   border-color: rgba(16,185,129,.2);  background: rgba(16,185,129,.04); }
+    .kpi-amber   { color: var(--amber);     border-color: rgba(245,158,11,.2);  background: rgba(245,158,11,.04); }
+    .kpi-red     { color: var(--red);       border-color: rgba(244,63,94,.2);   background: rgba(244,63,94,.04); }
+    .kpi-blue    { color: var(--blue);      border-color: rgba(56,189,248,.2);  background: rgba(56,189,248,.04); }
+    .kpi-teal    { color: var(--teal);      border-color: rgba(45,212,191,.2);  background: rgba(45,212,191,.04); }
+    .kpi-slate   { color: var(--subtle);    border-color: var(--border);        background: rgba(15,23,42,.35); }
+
+    /* ── CHARTS ROW ── */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+    .chart-card {
+      padding: 22px; border-radius: 20px; border: 1px solid var(--border);
+      background: rgba(15,23,42,.4);
+    }
+    .chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
+    .donut-row { display: flex; align-items: center; justify-content: center; gap: 28px; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-label { color: var(--subtle); }
+    .legend-val { color: var(--text); font-weight: 600; margin-left: auto; padding-left: 12px; }
+
+    /* ── ALERT BANNERS ── */
+    .alert-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .alert-bar.danger { background: rgba(244,63,94,.08); border: 1px solid rgba(244,63,94,.25); color: #fca5a5; }
+    .alert-bar.warn   { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25); color: #fcd34d; }
+    .alert-bar.info   { background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.25); color: #7dd3fc; }
+
+    /* ── TABLE ── */
+    .table-card {
+      border-radius: 20px; border: 1px solid var(--border);
+      background: rgba(15,23,42,.4); overflow: hidden; margin-bottom: 24px;
+    }
+    .table-head { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-head-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .table-head-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 11px 16px; text-align: left;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .1em;
+      background: rgba(0,0,0,.2); white-space: nowrap;
+      cursor: pointer; user-select: none;
+    }
+    th:hover { color: var(--subtle); }
+    td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(148,163,184,.03); }
+    .td-reg  { font-weight: 700; color: var(--text); }
+    .td-name { font-size: 11px; color: var(--muted); }
+
+    /* ── STATUS BADGE ── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 10px; border-radius: 99px;
+      font-size: 10px; font-weight: 700; border: 1px solid;
+    }
+    .badge-available { background: rgba(16,185,129,.1); color: var(--emerald); border-color: rgba(16,185,129,.2); }
+    .badge-on-trip   { background: rgba(99,102,241,.1); color: var(--indigo-lt); border-color: rgba(99,102,241,.2); }
+    .badge-in-shop   { background: rgba(245,158,11,.1); color: var(--amber); border-color: rgba(245,158,11,.2); }
+    .badge-retired   { background: rgba(100,116,139,.1); color: var(--muted); border-color: rgba(100,116,139,.2); }
+
+    /* ── ROI BAR ── */
+    .roi-wrap { display: flex; align-items: center; gap: 8px; }
+    .roi-track { flex: 1; height: 6px; border-radius: 99px; background: rgba(30,41,59,.8); overflow: hidden; }
+    .roi-fill  { height: 6px; border-radius: 99px; transition: width .6s ease; }
+    .roi-val   { font-size: 11px; font-weight: 700; width: 52px; text-align: right; }
+
+    /* ── SUMMARY METRICS (Reports) ── */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 12px;
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      cursor: pointer; border: none; transition: all .18s;
+    }
+    .btn-primary { background: var(--indigo); color: white; box-shadow: 0 4px 16px rgba(99,102,241,.25); }
+    .btn-primary:hover { background: var(--indigo-lt); }
+    .btn-ghost {
+      background: rgba(30,41,59,.5); border: 1px solid rgba(100,116,139,.3);
+      color: var(--subtle);
+    }
+    .btn-ghost:hover { color: var(--text); background: rgba(30,41,59,.8); }
+
+    /* ── LOGIN PAGE ── */
+    .login-page {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,.12) 0%, transparent 70%);
+    }
+    .login-card {
+      width: 100%; max-width: 420px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; padding: 40px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.5);
+    }
+    .login-logo {
+      width: 52px; height: 52px; border-radius: 16px;
+      background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.25);
+      display: grid; place-items: center; margin: 0 auto 20px;
+    }
+    .login-title { font-size: 24px; font-weight: 800; color: white; text-align: center; }
+    .login-sub   { font-size: 13px; color: var(--muted); text-align: center; margin-top: 4px; margin-bottom: 32px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--subtle); display: block; margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      background: rgba(30,41,59,.6); border: 1px solid rgba(100,116,139,.25);
+      color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+      transition: border .18s;
+    }
+    .form-input:focus { border-color: var(--indigo); }
+    .form-input::placeholder { color: var(--muted); }
+    .form-select {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      background: rgba(30,41,59,.6); border: 1px solid rgba(100,116,139,.25);
+      color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+      cursor: pointer;
+    }
+    .login-btn {
+      width: 100%; padding: 14px;
+      background: var(--indigo); color: white;
+      border: none; border-radius: 14px;
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      cursor: pointer; margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(99,102,241,.3);
+      transition: background .18s;
+    }
+    .login-btn:hover { background: var(--indigo-lt); }
+    .login-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 20px; }
+
+    /* ── MOBILE HAMBURGER ── */
+    .hamburger {
+      display: none; padding: 8px; border-radius: 8px;
+      background: none; border: none; color: var(--subtle); cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .hamburger { display: flex; }
+      .content { padding: 20px 16px; }
+      .charts-row { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .topbar { padding: 0 16px; }
+    }
+
+    /* ── MISC ── */
+    .note-box {
+      padding: 12px 16px; border-radius: 12px;
+      background: rgba(30,41,59,.3); border: 1px solid var(--border);
+      font-size: 11px; color: var(--muted); line-height: 1.6;
+    }
+    .note-box strong { color: var(--subtle); }
+    svg { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ LOGIN PAGE ══════════════════════════════ -->
+<div id="login-page" class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+    </div>
+    <h1 class="login-title">TransitOps</h1>
+    <p class="login-sub">Smart Transport Operations Platform</p>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input id="login-email" class="form-input" type="email" placeholder="you@company.com" value="manager@transitops.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input id="login-pass" class="form-input" type="password" placeholder="••••••••" value="password" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Role (demo)</label>
+      <select id="login-role" class="form-select">
+        <option value="fleet_manager">Fleet Manager</option>
+        <option value="financial_analyst">Financial Analyst</option>
+        <option value="safety_officer">Safety Officer</option>
+        <option value="driver">Driver</option>
+      </select>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <p class="login-note">Demo mode — no backend required. All data is simulated.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ APP SHELL ═══════════════════════════════ -->
+<div id="app-shell" class="layout" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">TransitOps</div>
+        <div class="brand-sub">Smart Platform</div>
+      </div>
+    </div>
+    <nav id="main-nav"></nav>
+    <div class="sidebar-user">
+      <div class="user-card">
+        <div class="user-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <div class="user-email" id="sidebar-email">—</div>
+          <div class="role-badge" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-email" id="topbar-email">—</span>
+        <div class="role-badge" id="topbar-role" style="font-size:10px">—</div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ───── DASHBOARD PAGE ───── -->
+      <div id="page-dashboard" class="page">
+        <div class="page-header">
+          <div class="page-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Operations Dashboard
+          </div>
+          <div class="page-sub">Real-time fleet overview and operational performance metrics.</div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <span class="filter-label">Filter by</span>
+          <select id="dash-region" class="filter-select" onchange="renderDashboard()">
+            <option value="">All Regions</option>
+            <option>North</option><option>South</option><option>East</option><option>West</option>
+          </select>
+          <select id="dash-type" class="filter-select" onchange="renderDashboard()">
+            <option value="">All Types</option>
+            <option>Van</option><option>Truck</option><option>Trailer</option>
+          </select>
+          <select id="dash-status" class="filter-select" onchange="renderDashboard()">
+            <option value="">All Statuses</option>
+            <option>Available</option><option>On Trip</option><option>In Shop</option><option>Retired</option>
+          </select>
+          <button class="clear-btn" onclick="clearDashFilters()">Clear</button>
+          <button class="btn btn-ghost" style="margin-left:auto" onclick="renderDashboard()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <!-- Alert banners -->
+        <div id="dash-alerts"></div>
+
+        <!-- Utilization hero -->
+        <div class="util-hero">
+          <div class="util-inner">
+            <div>
+              <div class="util-label">Fleet Utilization</div>
+              <div class="util-pct" id="util-pct">—<span>%</span></div>
+              <div class="util-sub" id="util-sub">—</div>
+            </div>
+            <div class="util-bar-wrap">
+              <div class="util-bar-track">
+                <div class="util-bar-fill" id="util-bar" style="width:0%"></div>
+              </div>
+              <div class="util-scale"><span>0%</span><span>50%</span><span>100%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle KPIs -->
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Vehicle Status
+        </div>
+        <div class="kpi-grid" id="vehicle-kpis"></div>
+
+        <!-- Driver KPIs -->
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Driver Status
+        </div>
+        <div class="kpi-grid" id="driver-kpis"></div>
+
+        <!-- Trip KPIs -->
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Trip Counts
+        </div>
+        <div class="kpi-grid" id="trip-kpis"></div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Fleet Composition by Type</div>
+            <div class="donut-row">
+              <svg id="donut-svg" width="150" height="150" viewBox="0 0 150 150"></svg>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Trips by Status</div>
+            <svg id="bar-svg" width="100%" height="150" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid meet" style="overflow:visible"></svg>
+            <div style="display:flex;justify-content:space-around;margin-top:6px" id="bar-labels"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ───── REPORTS PAGE ───── -->
+      <div id="page-reports" class="page">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div>
+            <div class="page-title">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Reports &amp; Analytics
+            </div>
+            <div class="page-sub">Per-vehicle financial performance, fuel efficiency, and ROI analysis.</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn btn-ghost" onclick="renderReports()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh
+            </button>
+            <button class="btn btn-primary" id="export-csv-btn" onclick="exportCSV()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+          <span class="filter-label">Filter</span>
+          <input id="rep-search" class="filter-input" type="text" placeholder="Search reg, name, type…" oninput="renderReports()" style="width:180px"/>
+          <select id="rep-region" class="filter-select" onchange="renderReports()">
+            <option value="">All Regions</option>
+            <option>North</option><option>South</option><option>East</option><option>West</option>
+          </select>
+          <select id="rep-type" class="filter-select" onchange="renderReports()">
+            <option value="">All Types</option>
+            <option>Van</option><option>Truck</option><option>Trailer</option>
+          </select>
+          <select id="rep-status" class="filter-select" onchange="renderReports()">
+            <option value="">All Statuses</option>
+            <option>Available</option><option>On Trip</option><option>In Shop</option><option>Retired</option>
+          </select>
+          <button class="clear-btn" onclick="clearRepFilters()">Clear</button>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="metric-grid" id="rep-metrics"></div>
+
+        <!-- Table -->
+        <div class="table-card">
+          <div class="table-head">
+            <div>
+              <div class="table-head-title">Vehicle Performance Breakdown</div>
+              <div class="table-head-sub" id="rep-count">—</div>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Status</th>
+                  <th>Region</th>
+                  <th onclick="repSort('completedTrips')">Trips ↕</th>
+                  <th onclick="repSort('totalDistance')">Distance ↕</th>
+                  <th onclick="repSort('totalRevenue')">Revenue ↕</th>
+                  <th onclick="repSort('operationalCost')">Op. Cost ↕</th>
+                  <th onclick="repSort('fuelEfficiency')">Fuel Eff ↕</th>
+                  <th onclick="repSort('roi')">ROI ↕</th>
+                </tr>
+              </thead>
+              <tbody id="rep-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <strong>Revenue model:</strong> Estimated as (Distance × ₹2.50/km) + (Cargo Weight × ₹0.10/kg) per completed trip.
+          ROI = (Revenue − Operational Cost) / Acquisition Cost × 100.
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+//  DEMO DATA
+// ══════════════════════════════════════════════════════════════════════════════
+const REGIONS = ['North','South','East','West'];
+const getRegion = id => REGIONS[id % REGIONS.length];
+const COLORS = ['#6366f1','#22d3ee','#f59e0b','#10b981','#f43f5e','#8b5cf6','#38bdf8'];
+const TRIP_COLORS = ['#475569','#6366f1','#10b981','#f43f5e'];
+
+const VEHICLES = [
+  { id:1, regNumber:'VAN-01', name:'City Van Alpha',   type:'Van',     maxLoad:500,  odometer:12400, acquisitionCost:28000, status:'Available' },
+  { id:2, regNumber:'VAN-02', name:'City Van Beta',    type:'Van',     maxLoad:500,  odometer:9800,  acquisitionCost:27000, status:'On Trip'   },
+  { id:3, regNumber:'VAN-03', name:'City Van Gamma',   type:'Van',     maxLoad:500,  odometer:15200, acquisitionCost:28500, status:'Available' },
+  { id:4, regNumber:'TRK-01', name:'Heavy Hauler 01',  type:'Truck',   maxLoad:5000, odometer:38000, acquisitionCost:85000, status:'On Trip'   },
+  { id:5, regNumber:'TRK-02', name:'Heavy Hauler 02',  type:'Truck',   maxLoad:5000, odometer:22000, acquisitionCost:82000, status:'In Shop'   },
+  { id:6, regNumber:'VAN-05', name:'Sprinter Van 05',  type:'Van',     maxLoad:600,  odometer:7500,  acquisitionCost:31000, status:'Available' },
+  { id:7, regNumber:'TRL-01', name:'Trailer Alpha',    type:'Trailer', maxLoad:15000,odometer:61000, acquisitionCost:120000,status:'Available' },
+  { id:8, regNumber:'TRL-02', name:'Trailer Beta',     type:'Trailer', maxLoad:15000,odometer:75000, acquisitionCost:115000,status:'Retired'   },
+  { id:9, regNumber:'TRK-03', name:'Medium Truck 03',  type:'Truck',   maxLoad:3000, odometer:18500, acquisitionCost:62000, status:'On Trip'   },
+  { id:10,regNumber:'VAN-06', name:'Cargo Van 06',     type:'Van',     maxLoad:550,  odometer:5100,  acquisitionCost:29500, status:'Available' },
+];
+
+const DRIVERS = [
+  { id:1, name:'Alex Johnson',   licenseExpiry: new Date(Date.now()+365*86400000), status:'On Trip',   safetyScore:92 },
+  { id:2, name:'Maria Garcia',   licenseExpiry: new Date(Date.now()+180*86400000), status:'Available', safetyScore:87 },
+  { id:3, name:'James Wilson',   licenseExpiry: new Date(Date.now()-10*86400000),  status:'Suspended', safetyScore:61 },
+  { id:4, name:'Priya Patel',    licenseExpiry: new Date(Date.now()+20*86400000),  status:'Available', safetyScore:95 },
+  { id:5, name:'Chen Wei',       licenseExpiry: new Date(Date.now()+400*86400000), status:'On Trip',   safetyScore:89 },
+  { id:6, name:'Sarah Brown',    licenseExpiry: new Date(Date.now()+5*86400000),   status:'Off Duty',  safetyScore:78 },
+  { id:7, name:'Marcus Lee',     licenseExpiry: new Date(Date.now()+300*86400000), status:'On Trip',   safetyScore:91 },
+];
+
+const TRIPS = [
+  { id:1, vehicleId:2, cargoWeight:450, distance:340, status:'Dispatched' },
+  { id:2, vehicleId:4, cargoWeight:3200,distance:520, status:'Dispatched' },
+  { id:3, vehicleId:9, cargoWeight:1800,distance:280, status:'Dispatched' },
+  { id:4, vehicleId:1, cargoWeight:320, distance:190, status:'Completed'  },
+  { id:5, vehicleId:3, cargoWeight:410, distance:230, status:'Completed'  },
+  { id:6, vehicleId:6, cargoWeight:280, distance:310, status:'Completed'  },
+  { id:7, vehicleId:7, cargoWeight:9800,distance:680, status:'Completed'  },
+  { id:8, vehicleId:1, cargoWeight:150, distance:80,  status:'Draft'      },
+  { id:9, vehicleId:6, cargoWeight:200, distance:120, status:'Draft'      },
+  { id:10,vehicleId:2, cargoWeight:90,  distance:45,  status:'Cancelled'  },
+];
+
+const FUEL_LOGS = [
+  { vehicleId:1, liters:38, cost:74 },  { vehicleId:2, liters:45, cost:88 },
+  { vehicleId:3, liters:32, cost:63 },  { vehicleId:4, liters:120,cost:234},
+  { vehicleId:5, liters:60, cost:117},  { vehicleId:6, liters:28, cost:55 },
+  { vehicleId:7, liters:200,cost:390},  { vehicleId:9, liters:85, cost:166},
+  { vehicleId:10,liters:22, cost:43 },
+];
+
+const MAINTENANCE = [
+  { vehicleId:5, cost:1800, status:'Open'   },
+  { vehicleId:4, cost:950,  status:'Closed' },
+  { vehicleId:7, cost:2400, status:'Closed' },
+  { vehicleId:2, cost:400,  status:'Closed' },
+];
+
+const EXPENSES = [
+  { vehicleId:1, amount:320 }, { vehicleId:2, amount:210 },
+  { vehicleId:4, amount:680 }, { vehicleId:7, amount:1100},
+  { vehicleId:9, amount:450 },
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  AUTH & NAV — only Dashboard + Reports
+// ══════════════════════════════════════════════════════════════════════════════
+let SESSION = null;
+
+const NAV_ITEMS = [
+  { id:'dashboard', label:'Dashboard',
+    icon:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+  { id:'reports',   label:'Reports & Analytics',
+    icon:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>' },
+];
+
+const ROLE_LABELS = {
+  fleet_manager:'Fleet Manager', financial_analyst:'Financial Analyst',
+  safety_officer:'Safety Officer', driver:'Driver'
+};
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim() || 'demo@transitops.com';
+  const role  = document.getElementById('login-role').value;
+  SESSION = { email, role };
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app-shell').style.display  = 'flex';
+  document.getElementById('sidebar-email').textContent = email;
+  document.getElementById('sidebar-role').textContent  = ROLE_LABELS[role] || role;
+  document.getElementById('topbar-email').textContent  = email;
+  document.getElementById('topbar-role').textContent   = ROLE_LABELS[role] || role;
+  buildNav();
+  navigate('dashboard');
+}
+
+function doLogout() {
+  SESSION = null;
+  document.getElementById('app-shell').style.display  = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function buildNav() {
+  const nav = document.getElementById('main-nav');
+  nav.innerHTML = NAV_ITEMS.map(n => `
+    <a class="nav-item" id="nav-${n.id}" onclick="navigate('${n.id}')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${n.icon}</svg>
+      ${n.label}
+    </a>`).join('');
+}
+
+let currentPage = '';
+function navigate(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if (page) page.classList.add('active');
+  const navEl = document.getElementById('nav-'+id);
+  if (navEl) navEl.classList.add('active');
+  const item = NAV_ITEMS.find(n => n.id === id);
+  document.getElementById('topbar-title').textContent = item ? item.label : 'Dashboard';
+  currentPage = id;
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'reports')   renderReports();
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DASHBOARD LOGIC
+// ══════════════════════════════════════════════════════════════════════════════
+function getFilteredVehicles() {
+  const region = document.getElementById('dash-region').value;
+  const type   = document.getElementById('dash-type').value;
+  const status = document.getElementById('dash-status').value;
+  return VEHICLES.filter(v => {
+    if (region && getRegion(v.id) !== region) return false;
+    if (type   && v.type   !== type)          return false;
+    if (status && v.status !== status)         return false;
+    return true;
+  });
+}
+
+function clearDashFilters() {
+  ['dash-region','dash-type','dash-status'].forEach(id => document.getElementById(id).value = '');
+  renderDashboard();
+}
+
+function kpiCard(label, value, sub, cls) {
+  return `<div class="kpi-card ${cls}">
+    <div class="kpi-card-label">${label}</div>
+    <div class="kpi-card-value">${value}</div>
+    ${sub ? `<div class="kpi-card-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function renderDashboard() {
+  const vehicles = getFilteredVehicles();
+  const vIds = new Set(vehicles.map(v => v.id));
+
+  const total     = vehicles.length;
+  const avail     = vehicles.filter(v => v.status === 'Available').length;
+  const onTrip    = vehicles.filter(v => v.status === 'On Trip').length;
+  const inShop    = vehicles.filter(v => v.status === 'In Shop').length;
+  const retired   = vehicles.filter(v => v.status === 'Retired').length;
+  const active    = total - retired;
+  const util      = active > 0 ? Math.round(onTrip / active * 100) : 0;
+
+  // Drivers
+  const today = new Date();
+  const in30  = new Date(today.getTime() + 30*86400000);
+  const expiredL  = DRIVERS.filter(d => d.licenseExpiry < today).length;
+  const expiringL = DRIVERS.filter(d => d.licenseExpiry >= today && d.licenseExpiry <= in30).length;
+  const drOnTrip  = DRIVERS.filter(d => d.status === 'On Trip').length;
+  const drAvail   = DRIVERS.filter(d => d.status === 'Available').length;
+  const drOnDuty  = drOnTrip + drAvail;
+
+  // Trips (scoped)
+  const trips  = TRIPS.filter(t => vIds.has(t.vehicleId));
+  const actT   = trips.filter(t => t.status === 'Dispatched').length;
+  const pendT  = trips.filter(t => t.status === 'Draft').length;
+  const compT  = trips.filter(t => t.status === 'Completed').length;
+  const canT   = trips.filter(t => t.status === 'Cancelled').length;
+  const openM  = MAINTENANCE.filter(m => m.status === 'Open' && vIds.has(m.vehicleId)).length;
+
+  // Utilization hero
+  document.getElementById('util-pct').innerHTML = `${util}<span>%</span>`;
+  document.getElementById('util-sub').textContent = `${onTrip} of ${active} active vehicles currently dispatched`;
+  document.getElementById('util-bar').style.width = util + '%';
+
+  // Alerts
+  const alerts = [];
+  if (expiredL > 0)  alerts.push({ cls:'danger', txt:`${expiredL} driver(s) have expired licenses — cannot be dispatched.` });
+  if (expiringL > 0) alerts.push({ cls:'warn',   txt:`${expiringL} driver license(s) expire within 30 days.` });
+  if (openM > 0)     alerts.push({ cls:'info',   txt:`${openM} vehicle(s) currently in maintenance shop.` });
+  document.getElementById('dash-alerts').innerHTML = alerts.map(a =>
+    `<div class="alert-bar ${a.cls}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      ${a.txt}
+    </div>`).join('');
+
+  // Vehicle KPIs
+  document.getElementById('vehicle-kpis').innerHTML = [
+    kpiCard('Total Vehicles',    total,            'In registry',              'kpi-slate'),
+    kpiCard('Available',         avail,            'Ready to dispatch',        'kpi-emerald'),
+    kpiCard('On Trip',           onTrip,           'Currently dispatched',     'kpi-indigo'),
+    kpiCard('In Shop / Retired', `${inShop} / ${retired}`, 'Maintenance & retired', 'kpi-amber'),
+  ].join('');
+
+  // Driver KPIs
+  document.getElementById('driver-kpis').innerHTML = [
+    kpiCard('Total Drivers',     DRIVERS.length,   'Registered drivers',       'kpi-slate'),
+    kpiCard('On Duty',           drOnDuty,         'Available + On Trip',      'kpi-teal'),
+    kpiCard('Currently Driving', drOnTrip,         'Assigned to active trips', 'kpi-indigo'),
+    kpiCard('License Alerts',    expiredL + expiringL, 'Expired + expiring soon', 'kpi-red'),
+  ].join('');
+
+  // Trip KPIs
+  document.getElementById('trip-kpis').innerHTML = [
+    kpiCard('Active (Dispatched)', actT,  'Currently in progress',   'kpi-indigo'),
+    kpiCard('Pending (Draft)',     pendT, 'Awaiting dispatch',        'kpi-amber'),
+    kpiCard('Completed',          compT, 'Successfully delivered',    'kpi-emerald'),
+    kpiCard('Cancelled',          canT,  'Aborted trips',             'kpi-red'),
+  ].join('');
+
+  // Donut Chart — vehicle types
+  const byType = {};
+  vehicles.forEach(v => byType[v.type] = (byType[v.type]||0) + 1);
+  renderDonut(byType);
+
+  // Bar Chart — trips by status
+  const byStatus = { Draft:pendT, Dispatched:actT, Completed:compT, Cancelled:canT };
+  renderBar(byStatus);
+}
+
+function renderDonut(data) {
+  const entries = Object.entries(data);
+  const total   = entries.reduce((s,[,v]) => s+v, 0);
+  const svg  = document.getElementById('donut-svg');
+  const leg  = document.getElementById('donut-legend');
+  const cx=75, cy=75, r=52, circ=2*Math.PI*r;
+
+  if (total === 0) {
+    svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1e293b" stroke-width="22"/>
+      <text x="${cx}" y="${cy+4}" text-anchor="middle" fill="#64748b" font-size="11" font-family="Inter">No data</text>`;
+    leg.innerHTML = '';
+    return;
+  }
+
+  let offset=0;
+  const segs = entries.map(([label, value], i) => {
+    const pct  = value/total;
+    const dash = pct*circ;
+    const gap  = circ-dash;
+    const seg  = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${COLORS[i%COLORS.length]}"
+      stroke-width="22" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
+      style="transform:rotate(-90deg);transform-origin:${cx}px ${cy}px"/>`;
+    offset += dash;
+    return seg;
+  });
+
+  svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1e293b" stroke-width="22"/>
+    ${segs.join('')}
+    <text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="800" font-family="Inter">${total}</text>
+    <text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#64748b" font-size="9" font-family="Inter">TOTAL</text>`;
+
+  leg.innerHTML = entries.map(([label, value], i) =>
+    `<div class="legend-item">
+      <div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+      <span class="legend-label">${label}</span>
+      <span class="legend-val">${value}</span>
+    </div>`).join('');
+}
+
+function renderBar(data) {
+  const entries = Object.entries(data);
+  const maxVal  = Math.max(...entries.map(([,v]) => v), 1);
+  const H=120, barW=55, gap=18, padL=8;
+  const totalW  = entries.length*(barW+gap)-gap+padL*2;
+  const svg     = document.getElementById('bar-svg');
+  const lbls    = document.getElementById('bar-labels');
+
+  const rects = entries.map(([label, value], i) => {
+    const barH = Math.max((value/maxVal)*H, value>0 ? 6 : 0);
+    const x    = padL + i*(barW+gap);
+    const y    = H - barH;
+    return `
+      <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="7" fill="${TRIP_COLORS[i%TRIP_COLORS.length]}" opacity="0.88"/>
+      <text x="${x+barW/2}" y="${y-5}" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="Inter">${value}</text>`;
+  }).join('');
+
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${H+10}`);
+  svg.innerHTML = rects;
+
+  lbls.innerHTML = entries.map(([label], i) =>
+    `<div style="text-align:center;flex:1">
+      <div style="font-size:10px;color:${TRIP_COLORS[i%TRIP_COLORS.length]};font-weight:700">${label}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  REPORTS LOGIC
+// ══════════════════════════════════════════════════════════════════════════════
+let repSortField='roi', repSortOrder='desc';
+
+function repSort(field) {
+  if (repSortField === field) repSortOrder = repSortOrder==='desc'?'asc':'desc';
+  else { repSortField=field; repSortOrder='desc'; }
+  renderReports();
+}
+
+function clearRepFilters() {
+  ['rep-search','rep-region','rep-type','rep-status'].forEach(id => document.getElementById(id).value = '');
+  renderReports();
+}
+
+function calcVehicleRow(v) {
+  const cTrips = TRIPS.filter(t => t.vehicleId===v.id && t.status==='Completed');
+  const maint  = MAINTENANCE.filter(m => m.vehicleId===v.id);
+  const fuel   = FUEL_LOGS.filter(f => f.vehicleId===v.id);
+  const exps   = EXPENSES.filter(e => e.vehicleId===v.id);
+
+  const distance      = cTrips.reduce((s,t) => s+t.distance, 0);
+  const fuelLiters    = fuel.reduce((s,f) => s+f.liters, 0);
+  const fuelCost      = fuel.reduce((s,f) => s+f.cost, 0);
+  const maintCost     = maint.reduce((s,m) => s+m.cost, 0);
+  const expCost       = exps.reduce((s,e) => s+e.amount, 0);
+  const revenue       = cTrips.reduce((s,t) => s + t.distance*2.5 + t.cargoWeight*0.1, 0);
+  const opCost        = fuelCost + maintCost + expCost;
+  const roi           = v.acquisitionCost > 0 ? (revenue-opCost)/v.acquisitionCost*100 : 0;
+  const fuelEff       = fuelLiters > 0 ? distance/fuelLiters : 0;
+  const totalTrips    = TRIPS.filter(t => t.vehicleId===v.id).length;
+
+  return {
+    vehicleId:v.id, regNumber:v.regNumber, name:v.name, type:v.type,
+    status:v.status, region:getRegion(v.id),
+    acquisitionCost:v.acquisitionCost, totalTrips,
+    completedTrips:cTrips.length, totalDistance:Math.round(distance*100)/100,
+    totalRevenue:Math.round(revenue*100)/100, totalFuelCost:Math.round(fuelCost*100)/100,
+    totalMaintCost:Math.round(maintCost*100)/100, totalExpenses:Math.round(expCost*100)/100,
+    operationalCost:Math.round(opCost*100)/100, fuelEfficiency:Math.round(fuelEff*100)/100,
+    roi:Math.round(roi*100)/100,
+  };
+}
+
+function renderReports() {
+  const search = document.getElementById('rep-search').value.toLowerCase();
+  const region = document.getElementById('rep-region').value;
+  const type   = document.getElementById('rep-type').value;
+  const status = document.getElementById('rep-status').value;
+
+  let vehicles = VEHICLES.filter(v => {
+    if (type   && v.type   !== type)          return false;
+    if (status && v.status !== status)         return false;
+    if (region && getRegion(v.id) !== region) return false;
+    return true;
+  });
+
+  let rows = vehicles.map(calcVehicleRow);
+
+  if (search) rows = rows.filter(r =>
+    r.regNumber.toLowerCase().includes(search) ||
+    r.name.toLowerCase().includes(search) ||
+    r.type.toLowerCase().includes(search) ||
+    r.region.toLowerCase().includes(search)
+  );
+
+  // Sort
+  rows.sort((a,b) => repSortOrder==='desc' ? b[repSortField]-a[repSortField] : a[repSortField]-b[repSortField]);
+
+  // Summary
+  const totRev  = rows.reduce((s,r) => s+r.totalRevenue, 0);
+  const totOp   = rows.reduce((s,r) => s+r.operationalCost, 0);
+  const netPrf  = totRev - totOp;
+  const totLit  = FUEL_LOGS.filter(f => vehicles.some(v=>v.id===f.vehicleId)).reduce((s,f)=>s+f.liters,0);
+  const totDist = rows.reduce((s,r) => s+r.totalDistance, 0);
+  const avgFE   = totLit>0 ? totDist/totLit : 0;
+  const avgROI  = rows.length>0 ? rows.reduce((s,r)=>s+r.roi,0)/rows.length : 0;
+
+  const fmtK = n => `₹${(Math.abs(n)/1000).toFixed(1)}k`;
+  const fmt  = n => `₹${Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+
+  document.getElementById('rep-metrics').innerHTML = [
+    `<div class="kpi-card kpi-emerald"><div class="kpi-card-label">Total Revenue</div><div class="kpi-card-value">${fmtK(totRev)}</div><div class="kpi-card-sub">Estimated from completed trips</div></div>`,
+    `<div class="kpi-card kpi-red"><div class="kpi-card-label">Operational Cost</div><div class="kpi-card-value">${fmtK(totOp)}</div><div class="kpi-card-sub">Fuel + maintenance + expenses</div></div>`,
+    `<div class="kpi-card ${netPrf>=0?'kpi-teal':'kpi-red'}"><div class="kpi-card-label">Net Profit</div><div class="kpi-card-value">${fmtK(netPrf)}</div><div class="kpi-card-sub">${netPrf>=0?'Profitable':'Loss'}</div></div>`,
+    `<div class="kpi-card kpi-blue"><div class="kpi-card-label">Avg Fuel Efficiency</div><div class="kpi-card-value">${avgFE.toFixed(1)}<span style="font-size:14px;font-weight:500"> km/L</span></div><div class="kpi-card-sub">Across completed trips</div></div>`,
+    `<div class="kpi-card kpi-indigo"><div class="kpi-card-label">Avg Fleet ROI</div><div class="kpi-card-value">${avgROI.toFixed(1)}<span style="font-size:14px;font-weight:500">%</span></div><div class="kpi-card-sub">Across ${rows.length} vehicle${rows.length!==1?'s':''}</div></div>`,
+  ].join('');
+
+  document.getElementById('rep-count').textContent = `${rows.length} vehicle${rows.length!==1?'s':''} shown`;
+
+  const badgeClass = s => ({Available:'badge-available','On Trip':'badge-on-trip','In Shop':'badge-in-shop',Retired:'badge-retired'}[s]||'badge-retired');
+  const roiColor = roi => roi >= 50 ? '#10b981' : roi >= 0 ? '#6366f1' : '#f43f5e';
+  const roiPct   = roi => { const c = Math.min(Math.max(roi,-100),200); return ((c+100)/300*100).toFixed(1); };
+
+  document.getElementById('rep-tbody').innerHTML = rows.length === 0
+    ? `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">No vehicles match the current filters.</td></tr>`
+    : rows.map(r => `
+      <tr>
+        <td><div class="td-reg">${r.regNumber}</div><div class="td-name">${r.name} · ${r.type}</div></td>
+        <td><span class="badge ${badgeClass(r.status)}">${r.status}</span></td>
+        <td style="color:var(--muted)">${r.region}</td>
+        <td style="font-weight:600">${r.completedTrips}<span style="color:var(--muted);font-size:11px"> / ${r.totalTrips}</span></td>
+        <td>${r.totalDistance.toLocaleString()} km</td>
+        <td style="color:#10b981;font-weight:600">${fmt(r.totalRevenue)}</td>
+        <td style="color:#f43f5e;font-weight:600">${fmt(r.operationalCost)}</td>
+        <td style="color:#38bdf8">${r.fuelEfficiency>0 ? r.fuelEfficiency+' km/L' : '—'}</td>
+        <td>
+          <div class="roi-wrap">
+            <div class="roi-track"><div class="roi-fill" style="width:${roiPct(r.roi)}%;background:${roiColor(r.roi)}"></div></div>
+            <span class="roi-val" style="color:${roiColor(r.roi)}">${r.roi.toFixed(1)}%</span>
+          </div>
+        </td>
+      </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CSV EXPORT
+// ══════════════════════════════════════════════════════════════════════════════
+function exportCSV() {
+  const search = document.getElementById('rep-search').value.toLowerCase();
+  const region = document.getElementById('rep-region').value;
+  const type   = document.getElementById('rep-type').value;
+  const status = document.getElementById('rep-status').value;
+
+  let vehicles = VEHICLES.filter(v => {
+    if (type   && v.type   !== type)          return false;
+    if (status && v.status !== status)         return false;
+    if (region && getRegion(v.id) !== region) return false;
+    return true;
+  });
+
+  let rows = vehicles.map(calcVehicleRow).filter(r =>
+    !search || r.regNumber.toLowerCase().includes(search) || r.name.toLowerCase().includes(search)
+  );
+
+  const headers = ['Vehicle ID','Reg Number','Name','Type','Status','Region',
+    'Acquisition Cost (₹)','Total Trips','Completed Trips','Total Distance (km)',
+    'Total Revenue (₹)','Fuel Cost (₹)','Maintenance Cost (₹)','Other Expenses (₹)',
+    'Operational Cost (₹)','Fuel Efficiency (km/L)','ROI (%)'];
+
+  const csvRows = [
+    headers.join(','),
+    ...rows.map(r => [
+      r.vehicleId, r.regNumber, `"${r.name}"`, r.type, r.status, r.region,
+      r.acquisitionCost, r.totalTrips, r.completedTrips, r.totalDistance,
+      r.totalRevenue, r.totalFuelCost, r.totalMaintCost, r.totalExpenses,
+      r.operationalCost, r.fuelEfficiency, r.roi
+    ].join(','))
+  ];
+
+  const blob = new Blob([csvRows.join('\r\n')], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `transitops-report-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
