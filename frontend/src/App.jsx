@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import AppLayout from './components/AppLayout';
 import Login from './pages/Login';
 import VehicleRegistry from './pages/VehicleRegistry';
+import MaintenanceStub from './pages/MaintenanceStub';
+import ExpensesStub from './pages/ExpensesStub';
 import './App.css';
 
 // Component to protect private dashboard routes
@@ -65,6 +67,12 @@ export default function App() {
             
             {/* Owned Vehicle Registry Route */}
             <Route path="vehicles" element={<VehicleRegistry />} />
+            
+            {/* Teammate Maintenance Route */}
+            <Route path="maintenance" element={<MaintenanceStub />} />
+            
+            {/* Teammate Fuel & Expenses Route */}
+            <Route path="expenses" element={<ExpensesStub />} />
             
             {/* Fallback path */}
             <Route path="*" element={<Navigate to="/vehicles" replace />} />

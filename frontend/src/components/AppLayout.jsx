@@ -6,7 +6,9 @@ import {
   LogOut,
   User,
   Menu,
-  ChevronRight
+  ChevronRight,
+  Wrench,
+  Fuel
 } from 'lucide-react';
 
 export default function AppLayout() {
@@ -16,14 +18,30 @@ export default function AppLayout() {
 
   if (!user) return null;
 
-  // Only Vehicle Registry is owned by Person A
+  // Integrated routes to satisfy PDF requirements
   const navItems = [
     {
       name: 'Vehicle Registry',
       path: '/vehicles',
-      icon: Truck
+      icon: Truck,
+      roles: ['fleet_manager', 'driver', 'safety_officer', 'financial_analyst']
+    },
+    {
+      name: 'Maintenance Log',
+      path: '/maintenance',
+      icon: Wrench,
+      roles: ['fleet_manager', 'safety_officer']
+    },
+    {
+      name: 'Fuel & Expenses',
+      path: '/expenses',
+      icon: Fuel,
+      roles: ['fleet_manager', 'financial_analyst']
     }
   ];
+
+  // Filter menu based on authenticated user role
+  const allowedNavItems = navItems.filter(item => item.roles.includes(user.role));
 
   const formatRole = (role) => {
     return role
@@ -64,7 +82,7 @@ export default function AppLayout() {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
+        {allowedNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           return (
