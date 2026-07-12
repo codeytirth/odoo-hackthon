@@ -6,6 +6,10 @@ import Login from './pages/Login';
 import VehicleRegistry from './pages/VehicleRegistry';
 import MaintenanceStub from './pages/MaintenanceStub';
 import ExpensesStub from './pages/ExpensesStub';
+import DriverManagement from './pages/DriverManagement';
+import TripManagement from './pages/TripManagement';
+import Dashboard from './pages/Dashboard';
+import Reports from './pages/Reports';
 import './App.css';
 
 // Component to protect private dashboard routes
@@ -62,8 +66,8 @@ export default function App() {
               </PrivateRoute>
             }
           >
-            {/* Index redirects to owned vehicles route */}
-            <Route index element={<Navigate to="/vehicles" replace />} />
+            {/* Dashboard Index Route */}
+            <Route index element={<Dashboard />} />
             
             {/* Owned Vehicle Registry Route */}
             <Route path="vehicles" element={<VehicleRegistry />} />
@@ -73,9 +77,18 @@ export default function App() {
             
             {/* Teammate Fuel & Expenses Route */}
             <Route path="expenses" element={<ExpensesStub />} />
+
+            {/* Drivers Management Route */}
+            <Route path="drivers" element={<DriverManagement />} />
+
+            {/* Trips Management Route */}
+            <Route path="trips" element={<TripManagement />} />
+
+            {/* Financial Reports & ROI Route */}
+            <Route path="reports" element={<Reports />} />
             
             {/* Fallback path */}
-            <Route path="*" element={<Navigate to="/vehicles" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </Router>

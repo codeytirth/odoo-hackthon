@@ -8,7 +8,11 @@ import {
   Menu,
   ChevronRight,
   Wrench,
-  Fuel
+  Fuel,
+  Users,
+  Navigation,
+  LayoutDashboard,
+  BarChart3
 } from 'lucide-react';
 
 export default function AppLayout() {
@@ -18,13 +22,30 @@ export default function AppLayout() {
 
   if (!user) return null;
 
-  // Integrated routes to satisfy PDF requirements
   const navItems = [
+    {
+      name: 'Dashboard',
+      path: '/',
+      icon: LayoutDashboard,
+      roles: ['fleet_manager', 'driver', 'safety_officer', 'financial_analyst']
+    },
     {
       name: 'Vehicle Registry',
       path: '/vehicles',
       icon: Truck,
       roles: ['fleet_manager', 'driver', 'safety_officer', 'financial_analyst']
+    },
+    {
+      name: 'Driver Management',
+      path: '/drivers',
+      icon: Users,
+      roles: ['fleet_manager', 'safety_officer']
+    },
+    {
+      name: 'Trip Management',
+      path: '/trips',
+      icon: Navigation,
+      roles: ['fleet_manager', 'driver']
     },
     {
       name: 'Maintenance Log',
@@ -36,6 +57,12 @@ export default function AppLayout() {
       name: 'Fuel & Expenses',
       path: '/expenses',
       icon: Fuel,
+      roles: ['fleet_manager', 'financial_analyst']
+    },
+    {
+      name: 'Reports & ROI',
+      path: '/reports',
+      icon: BarChart3,
       roles: ['fleet_manager', 'financial_analyst']
     }
   ];
