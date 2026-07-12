@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model drivers {
+  id               Int      @id @default(autoincrement())
+  name             String
+  license_number   String
+  license_category String
+  license_expiry   DateTime
+  contact          String
+  safety_score     Float
+  status           String
+  trips            trips[]
+}
+
+model expenses {
+  id         Int      @id @default(autoincrement())
+  vehicle_id Int
+  type       String
+  amount     Float
+  date       DateTime
+  vehicles   vehicles @relation(fields: [vehicle_id], references: [id])
+}
+
+model fuel_logs {
+  id         Int      @id @default(autoincrement())
+  vehicle_id Int
+  liters     Float
+  cost       Float
+  date       DateTime
+  vehicles   vehicles @relation(fields: [vehicle_id], references: [id])
+}
+
+model maintenance_logs {
+  id          Int       @id @default(autoincrement())
+  vehicle_id  Int
+  description String
+  cost        Float
+  status      String
+  opened_at   DateTime  @default(now())
+  closed_at   DateTime?
+  vehicles    vehicles  @relation(fields: [vehicle_id], references: [id])
+}
+
+model trips {
+  id           Int      @id @default(autoincrement())
+  source       String
+  destination  String
+  vehicle_id   Int
+  driver_id    Int
+  cargo_weight Float
+  distance     Float
+  status       String
+  created_at   DateTime @default(now())
+  drivers      drivers  @relation(fields: [driver_id], references: [id])
+  vehicles     vehicles @relation(fields: [vehicle_id], references: [id])
+}
+
+model users {
+  id            Int    @id @default(autoincrement())
+  email         String @unique
+  password_hash String
+  role          String
+}
+
+model vehicles {
+  id               Int                @id @default(autoincrement())
+  reg_number       String             @unique
+  name             String
+  type             String
+  max_load         Float
+  odometer         Float
+  acquisition_cost Float
+  status           String
+  expenses         expenses[]
+  fuel_logs        fuel_logs[]
+  maintenance_logs maintenance_logs[]
+  trips            trips[]
+}
