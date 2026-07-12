@@ -1,0 +1,103 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           Int    @id @default(autoincrement())
+  email        String @unique
+  passwordHash String @map("password_hash")
+  role         String // fleet_manager | driver | safety_officer | financial_analyst
+
+  @@map("users")
+}
+
+model Vehicle {
+  id              Int              @id @default(autoincrement())
+  regNumber       String           @unique @map("reg_number")
+  name            String
+  type            String
+  maxLoad         Float            @map("max_load")
+  odometer        Float
+  acquisitionCost Float            @map("acquisition_cost")
+  status          String           // Available | On Trip | In Shop | Retired
+  trips           Trip[]
+  maintenanceLogs MaintenanceLog[]
+  fuelLogs        FuelLog[]
+  expenses        Expense[]
+
+  @@map("vehicles")
+}
+
+model Driver {
+  id              Int      @id @default(autoincrement())
+  name            String
+  licenseNumber   String   @map("license_number")
+  licenseCategory String   @map("license_category")
+  licenseExpiry   DateTime @map("license_expiry")
+  contact         String
+  safetyScore     Float    @map("safety_score")
+  status          String   // Available | On Trip | Off Duty | Suspended
+  trips           Trip[]
+
+  @@map("drivers")
+}
+
+model Trip {
+  id          Int      @id @default(autoincrement())
+  source      String
+  destination String
+  vehicleId   Int      @map("vehicle_id")
+  driverId    Int      @map("driver_id")
+  cargoWeight Float    @map("cargo_weight")
+  distance    Float
+  status      String   // Draft | Dispatched | Completed | Cancelled
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  driver  Driver  @relation(fields: [driverId], references: [id])
+
+  @@map("trips")
+}
+
+model MaintenanceLog {
+  id          Int       @id @default(autoincrement())
+  vehicleId   Int       @map("vehicle_id")
+  description String
+  cost        Float
+  status      String    // Open | Closed
+  openedAt    DateTime  @default(now()) @map("opened_at")
+  closedAt    DateTime? @map("closed_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@map("maintenance_logs")
+}
+
+model FuelLog {
+  id        Int      @id @default(autoincrement())
+  vehicleId Int      @map("vehicle_id")
+  liters    Float
+  cost      Float
+  date      DateTime
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@map("fuel_logs")
+}
+
+model Expense {
+  id        Int      @id @default(autoincrement())
+  vehicleId Int      @map("vehicle_id")
+  type      String
+  amount    Float
+  date      DateTime
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@map("expenses")
+}
