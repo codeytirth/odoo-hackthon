@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 const API_URL = 'http://localhost:5000/api';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Mail, Lock, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { Shield, Mail, Lock, AlertCircle, ArrowRight, Loader2, UserCheck } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
+  const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('driver'); // Default role for registration
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!email || !password || (isRegister && !role)) {
       setError('Please fill in all fields.');
       return;
     }
@@ -21,18 +23,23 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const endpoint = isRegister ? '/auth/register' : '/auth/login';
+      const bodyPayload = isRegister 
+        ? { email, password, role } 
+        : { email, password };
+
+      const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(bodyPayload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data.error || 'Authentication failed');
       }
 
       // Add a slight artificial delay to show off the loader animation
@@ -41,12 +48,13 @@ export default function Login() {
       }, 800);
 
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please check your credentials.');
+      setError(err.message || 'Something went wrong. Please check your inputs.');
       setLoading(false);
     }
   };
 
   const handleAutofill = (roleEmail) => {
+    setIsRegister(false);
     setEmail(roleEmail);
     setPassword('password123');
   };
@@ -79,14 +87,20 @@ export default function Login() {
           <p className="text-sm text-slate-400 mt-2 font-medium">Smart Transport Operations Platform</p>
         </div>
 
-        {/* Login Form Glass Panel Card */}
+        {/* Auth Form Glass Panel Card */}
         <div className="glass-panel p-8 md:p-10 rounded-3xl shadow-2xl relative border border-white/[0.06] overflow-hidden">
           {/* Subtle top edge lighting */}
           <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-white tracking-tight">Welcome Back</h2>
-            <p className="text-xs text-slate-400 mt-1">Sign in with your credentials to manage operations.</p>
+            <h2 className="text-xl font-bold text-white tracking-tight">
+              {isRegister ? 'Create Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              {isRegister 
+                ? 'Get started with TransitOps fleet control tower.' 
+                : 'Sign in with your credentials to manage operations.'}
+            </p>
           </div>
 
           {error && (
@@ -107,7 +121,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-800 bg-brand-dark/40 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 focus:border-indigo-500/80 transition-all font-medium text-sm"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-800 bg-[#030712]/40 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 focus:border-indigo-500/80 transition-all font-medium text-sm"
                   placeholder="name@transitops.com"
                   required
                 />
@@ -124,12 +138,33 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-800 bg-brand-dark/40 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 focus:border-indigo-500/80 transition-all font-medium text-sm"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-800 bg-[#030712]/40 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 focus:border-indigo-500/80 transition-all font-medium text-sm"
                   placeholder="••••••••"
                   required
                 />
               </div>
             </div>
+
+            {isRegister && (
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  Assign User Role
+                </label>
+                <div className="relative group">
+                  <UserCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition" />
+                  <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-800 bg-[#030712] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/80 focus:border-indigo-500/80 transition-all font-medium text-sm"
+                  >
+                    <option value="driver">Driver</option>
+                    <option value="fleet_manager">Fleet Manager</option>
+                    <option value="safety_officer">Safety Officer</option>
+                    <option value="financial_analyst">Financial Analyst</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -139,16 +174,31 @@ export default function Login() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Securing Session...</span>
+                  <span>{isRegister ? 'Creating Workspace...' : 'Securing Session...'}</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>{isRegister ? 'Sign Up' : 'Sign In'}</span>
                   <ArrowRight className="w-4.5 h-4.5" />
                 </>
               )}
             </button>
           </form>
+
+          {/* Toggle link between login & registration */}
+          <div className="mt-5 text-center">
+            <button
+              onClick={() => {
+                setIsRegister(!isRegister);
+                setError('');
+              }}
+              className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition"
+            >
+              {isRegister 
+                ? 'Already have an account? Sign In' 
+                : "Don't have an account? Create one"}
+            </button>
+          </div>
 
           {/* Quick Demo Login Grid */}
           <div className="mt-8 pt-6 border-t border-white/[0.04]">
