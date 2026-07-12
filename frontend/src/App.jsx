@@ -4,12 +4,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import AppLayout from './components/AppLayout';
 import Login from './pages/Login';
 import VehicleRegistry from './pages/VehicleRegistry';
-import DashboardStub from './pages/DashboardStub';
-import DriversStub from './pages/DriversStub';
-import TripsStub from './pages/TripsStub';
-import MaintenanceStub from './pages/MaintenanceStub';
-import ExpensesStub from './pages/ExpensesStub';
-import ReportsStub from './pages/ReportsStub';
 import './App.css';
 
 // Component to protect private dashboard routes
@@ -36,7 +30,7 @@ const PublicRoute = ({ children }) => {
   }
   
   if (token) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/vehicles" replace />;
   }
   
   return children;
@@ -66,17 +60,14 @@ export default function App() {
               </PrivateRoute>
             }
           >
-            {/* Child pages */}
-            <Route index element={<DashboardStub />} />
+            {/* Index redirects to owned vehicles route */}
+            <Route index element={<Navigate to="/vehicles" replace />} />
+            
+            {/* Owned Vehicle Registry Route */}
             <Route path="vehicles" element={<VehicleRegistry />} />
-            <Route path="drivers" element={<DriversStub />} />
-            <Route path="trips" element={<TripsStub />} />
-            <Route path="maintenance" element={<MaintenanceStub />} />
-            <Route path="expenses" element={<ExpensesStub />} />
-            <Route path="reports" element={<ReportsStub />} />
             
             {/* Fallback path */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/vehicles" replace />} />
           </Route>
         </Routes>
       </Router>
